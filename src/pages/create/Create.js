@@ -2,6 +2,7 @@ import './Create.css'
 import { useEffect, useState } from 'react'
 import Select from 'react-select'
 import { useCollection } from '../../hooks/useCollection'
+import { useAuthContext } from '../../hooks/useAuthContext'
 
 const categories = [
   { value: 'development', label: 'Development' },
@@ -17,7 +18,9 @@ export default function Create() {
   const [category, setCategory] = useState('')
   const [assignUsers, setAssignUsers] = useState([])
   const [users, setUsers] = useState([])
+  const [formError, setFormError] = useState(null)
 
+  const { user } = useAuthContext()
   const { documents } = useCollection('users')
 
   useEffect(()=>{
@@ -31,7 +34,45 @@ export default function Create() {
 
   const handleSubmit = e => {
     e.preventDefault()
-    console.log(name, details, dueDate, category.value, assignUsers)
+    setFormError(null)
+
+    if (!category){
+      setFormError('Please select category project')
+      return
+    }
+
+    if (!assignUsers.length){
+      setFormError('Please assign project to at least 1 user')
+      return
+    }
+
+    const createdBy = {
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      id: user.uid
+    }
+
+    const assignUsersList = assignUsers.map(u=>{
+      return {
+        displayName: u.value.displayName,
+        photoURL: u.value.photoURL,
+        id: u.value.id
+      }
+    })
+
+    console.log(assignUsers)
+
+    const project = {
+      name,
+      details,
+      dueDate,
+      category: category.value,
+      createdBy,
+      assignUsersList,
+      coments: []
+    }
+
+    console.log(project)
   }
 
   return (
@@ -87,6 +128,8 @@ export default function Create() {
         </label>
 
         <button className='btn'>Submit</button>
+
+        {formError && <p className='error'>{formError}</p>}
 
       </form>
     </div>
