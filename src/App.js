@@ -34,7 +34,7 @@ function App() {
             </Switch>
 
             <Switch>
-              <Route path="/projects">
+              <Route path="/projects/:id">
                 {!user && <Redirect to="/login"/>}
                 {user && <Project />}
               </Route>
